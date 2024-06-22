@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Multiplicaciones</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #71b7e6, #9b59b6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            color: #333;
+            text-shadow: none;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-container button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-container button:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        .btn-container button:active {
+            background-color: #2471a3;
+            transform: translateY(1px);
+        }
+
+        .next-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .next-button:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+        }
+
+        .next-button:active {
+            background-color: #a93226;
+            transform: translateY(1px);
+        }
+
+        #score, #timer {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #footer {
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: center;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Juego de Multiplicaciones</h1>
+        <div id="question-container" class="question-container">
+            <p id="question"></p>
+        </div>
+        <div id="answer-buttons" class="btn-container"></div>
+        <button id="next-button" class="next-button hide">Siguiente</button>
+        <p id="score">Puntuación: 0</p>
+        <p id="timer">Tiempo restante: 10:00</p> <!-- Contenedor para el temporizador -->
+    </div>
+    <div id="footer">Universidad de El Salvador<br>Licenciatura en Ciencias de la Educación 2024</div>
+
+    <script>
+        const questionContainer = document.getElementById('question');
+        const answerButtons = document.getElementById('answer-buttons');
+        const nextButton = document.getElementById('next-button');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+
+        let currentQuestion, score, timerInterval;
+        let timeLeft = 600; // 10 minutos en segundos
+        let selectedAnswer = false;
+        const maxScore = 20; // Puntaje máximo para terminar el juego
+
+        function startGame() {
+            score = 0;
+            timeLeft = 600; // Reiniciar el tiempo a 10 minutos
+            nextButton.classList.add('hide');
+            scoreDisplay.innerText = `Puntuación: ${score}`;
+            updateTimerDisplay();
+            startTimer();
+            showNextQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.innerText = `Tiempo restante: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            alert(`¡El tiempo se ha acabado! Tu puntuación final es: ${score}`);
+            startGame(); // Reiniciar el juego automáticamente
+        }
+
+        function showNextQuestion() {
+            if (score >= maxScore) {
+                alert(`¡Felicidades! Has alcanzado la puntuación máxima de ${maxScore} puntos.`);
+                startGame();
+                return;
+            }
+            resetState();
+            currentQuestion = generateQuestion();
+            questionContainer.innerText = `¿Cuánto es ${currentQuestion.a} x ${currentQuestion.b}?`;
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer;
+                button.classList.add('btn');
+                button.addEventListener('click', selectAnswer);
+                answerButtons.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+            nextButton.classList.add('hide');
+            selectedAnswer = false;
+        }
+
+        function selectAnswer(e) {
+            if (selectedAnswer) return;
+            selectedAnswer = true;
+            const selectedButton = e.target;
+            const correct = selectedButton.innerText == currentQuestion.correct;
+            if (correct) {
+                score++;
+                selectedButton.style.backgroundColor = '#4CAF50';
+                alert('¡Correcto!');
+            } else {
+                selectedButton.style.backgroundColor = '#f44336';
+                alert('Incorrecto, la respuesta correcta era ' + currentQuestion.correct);
+            }
+            scoreDisplay.innerText = `Puntuación: ${score}`;
+            nextButton.classList.remove('hide');
+        }
+
+        function generateQuestion() {
+            const a = Math.floor(Math.random() * 10) + 1;
+            const b = Math.floor(Math.random() * 10) + 1;
+            const correct = a * b;
+            const answers = [correct];
+            while (answers.length < 4) {
+                const wrongAnswer = Math.floor(Math.random() * 100) + 1;
+                if (!answers.includes(wrongAnswer)) {
+                    answers.push(wrongAnswer);
+                }
+            }
+            answers.sort(() => Math.random() - 0.5);
+            return { a, b, correct, answers };
+        }
+
+        nextButton.addEventListener('click', showNextQuestion);
+
+        startGame();
+    </script>
+</body>
+</html>
