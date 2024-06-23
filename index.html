@@ -114,7 +114,7 @@
         <div id="answer-buttons" class="btn-container"></div>
         <button id="next-button" class="next-button hide">Siguiente</button>
         <p id="score">Puntuación: 0</p>
-        <p id="timer">Tiempo restante: 10:00</p> <!-- Contenedor para el temporizador -->
+        <p id="timer">Tiempo restante: 10:00</p>
     </div>
     <div id="footer">Universidad de El Salvador<br>Licenciatura en Ciencias de la Educación 2024</div>
 
@@ -126,13 +126,13 @@
         const timerDisplay = document.getElementById('timer');
 
         let currentQuestion, score, timerInterval;
-        let timeLeft = 600; // 10 minutos en segundos
+        let timeLeft = 600;
         let selectedAnswer = false;
-        const maxScore = 20; // Puntaje máximo para terminar el juego
+        const maxScore = 20;
 
         function startGame() {
             score = 0;
-            timeLeft = 600; // Reiniciar el tiempo a 10 minutos
+            timeLeft = 600;
             nextButton.classList.add('hide');
             scoreDisplay.innerText = `Puntuación: ${score}`;
             updateTimerDisplay();
